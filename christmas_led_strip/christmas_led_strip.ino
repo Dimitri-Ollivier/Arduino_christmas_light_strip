@@ -1,7 +1,7 @@
 /*
 * Christmas led strip 
 * authors: HUON Nicolas, SORIN Aimeric, LECAT Baptiste, OLLIVIER Dimitri
-* last-modification: 16/12/2022
+* last-modification: 06/01/2023
 */
 
 #include "FastLED.h"
@@ -9,14 +9,22 @@
 #define LED_PIN 6
 #define BUTTON_ON_OFF_PIN 5
 #define BUTTON_PROG_PIN 4
+#define POTENTIOMETER_BRIGTHNESS_PIN A0
+#define POTENTIOMETER_RATE_PIN A1
 
-int buttonOnOffState = 1;
-
+// define LEDs
 CRGB leds[NUM_LEDS];
 
+int buttonOnOffState = 1;
 bool isLedsActive = false;
+// current program running
 int progNum = 0;
-int progCount = 2;
+// number of program
+int progCount = 3;
+// rate of the LED in ms
+int ledRate = 1500;
+// brightness of the LED
+int ledBrightness = 20;
 
 void setup() {
   // put your setup code here, to run once:
@@ -33,9 +41,9 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
 
   LEDS.showColor(CRGB(0, 0, 0));
-  LEDS.setBrightness(20);
+  LEDS.setBrightness(ledBrightness);
   Serial.begin(9600);
-  Serial.println("nouveau test");
+  Serial.println("Start here!");
 }
 
 void loop() {
@@ -54,7 +62,7 @@ void loop() {
       progNum = 1;
     }
 
-    Serial.print("Program number : ");
+    Serial.print("Program number: ");
     Serial.println(progNum);
     delay(100);
   }  
@@ -67,6 +75,9 @@ void loop() {
   case 2:
       secondProg();
     break;
+  case 3:
+    thirdProg();
+    break;
   default:
     // statements
     break;
@@ -74,6 +85,10 @@ void loop() {
     } else {
       reset();
     }
+
+
+LEDS.setBrightness(analogRead(POTENTIOMETER_BRIGTHNESS_PIN) / 10);
+ledRate = (analogRead(POTENTIOMETER_RATE_PIN) * 10); 
 }
 
 void reset() {
@@ -83,16 +98,23 @@ void reset() {
 
 void firstProg() {
   showLeds(1, 2, CRGB(188, 71, 73));
-  delay(1500);
+  delay(ledRate);
   showLeds(2, 2, CRGB(188, 71, 73));
-  delay(1500);
+  delay(ledRate);
 }
 
 void secondProg() {
   showLeds(1, 1, CRGB(188, 0, 73));
-  delay(1500);
+  delay(ledRate);
   showLeds(1, 1, CRGB(0, 0, 73));
-  delay(1500);
+  delay(ledRate);
+}
+
+void thirdProg() {
+  showLeds(1, 1, CRGB(0, 0, 52));
+  delay(ledRate);
+  showLeds(1, 1, CRGB(0, 14, 73));
+  delay(ledRate);
 }
 
 void showLeds(int startAt, int count, CRGB color) {
